@@ -10,19 +10,18 @@ import base64
 import hashlib
 import os
 import jwt
+import json
 
 
 load_dotenv()
 
 
-# FastAPI instance
 app = FastAPI()
 
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-# Database initialization
 DATABASE = 'data/users.db'
 
 
@@ -40,7 +39,6 @@ def initialize_db():
             PASSWORD TEXT NOT NULL
         )
     ''')
-    # Insert initial user
     try:
         password = "QRpwd123!"
         encoded_password = base64.b64encode(password.encode()).decode()
@@ -50,7 +48,7 @@ def initialize_db():
         ''', (str(uuid.uuid4()), str(uuid.uuid4()), 'Administrador', 'admin@mock.com', 'admin', 'CN=admin,OU=Brazil,OU=Sailpoint_Mock,DC=qriar,DC=com', encoded_password))
         conn.commit()
     except sqlite3.IntegrityError:
-        pass  # User already exists
+        pass  # usuário já existe
     finally:
         conn.close()
 
@@ -58,7 +56,6 @@ def initialize_db():
 initialize_db()
 
 
-# Pydantic model
 class User(BaseModel):
     name: str
     email: str
@@ -109,7 +106,6 @@ async def verify_token(authorization: str = Header(...)):
         )
 
 
-# Helper function to validate Base64 encoding
 def is_base64(s: str) -> bool:
     try:
         return base64.b64encode(base64.b64decode(s)) == s.encode()
@@ -117,9 +113,30 @@ def is_base64(s: str) -> bool:
         return False
 
 
+def read_and_concatenate_logs(directory):
+    logs_data = {
+        "logs": [],
+        "files": []
+    }
+    separator = "-" * 100
+    
+    for filename in os.listdir(directory):
+        if filename.endswith(".log"):
+            logs_data["files"].append(filename)
+            with open(os.path.join(directory, filename), 'r') as file:
+                file_content = file.read()
+                log_entry = {
+                    "filename": filename,
+                    "content": f"{filename}\n{separator}\n{file_content}\n\n"
+                }
+                logs_data["logs"].append(log_entry)
+    
+    return json.dumps(logs_data, indent=4)
+
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    log_filename = datetime.now().strftime("LOG-%d%m%Y.log")
+    log_filename = datetime.now().strftime("./data/LOG-%d%m%Y.log")
     log_entry = f"{datetime.now()} - {request.method} {request.url}\n"
     
     headers = " ".join([f"-H '{k}: {v}'" for k, v in request.headers.items()])
@@ -127,8 +144,9 @@ async def log_requests(request: Request, call_next):
     curl_command = f"curl -X {request.method} {headers} '{str(request.url)}' --data '{body.decode()}'"
 
     with open(log_filename, "a") as log_file:
-        log_file.write(log_entry)
-        log_file.write(curl_command + "\n\n")
+        if "/v2024/logs" not in str(log_entry):
+            log_file.write(log_entry)
+            log_file.write(curl_command + "\n\n")
 
     response = await call_next(request)
     return response    
@@ -143,20 +161,17 @@ def set_password(
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
 
-        # Verificar se existe usuário com identityId
         cursor.execute("SELECT * FROM USERS WHERE ID = ?", (request.identityId,))
         if not cursor.fetchone():
             conn.close()
             raise HTTPException(status_code=401, detail="Identity not found")
 
-        # Localizar usuário pelo sourceId
         cursor.execute("SELECT * FROM USERS WHERE ID = ?", (request.sourceId,))
         user = cursor.fetchone()
         if not user:
             conn.close()
             raise HTTPException(status_code=404, detail="User not found")
 
-        # Atualizar a senha
         encoded_password = base64.b64encode(request.encryptedPassword.encode()).decode() 
         cursor.execute(
             "UPDATE USERS SET PASSWORD = ? WHERE ID = ? AND USERNAME = ?",
@@ -312,3 +327,9 @@ def delete_user(user_id: str):
     conn.commit()
     conn.close()
     return {"detail": "User deleted successfully."}
+
+
+@app.get("/v2024/logs")
+def list_logs():
+    all_logs_content = read_and_concatenate_logs('./data')
+    return all_logs_content
