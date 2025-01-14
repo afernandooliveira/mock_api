@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
+from curlify2 import Curlify
 import sqlite3
 import uuid
 import base64
@@ -120,9 +121,14 @@ def is_base64(s: str) -> bool:
 async def log_requests(request: Request, call_next):
     log_filename = datetime.now().strftime("LOG-%d%m%Y.log")
     log_entry = f"{datetime.now()} - {request.method} {request.url}\n"
+    
+    headers = " ".join([f"-H '{k}: {v}'" for k, v in request.headers.items()])
+    body = await request.body()
+    curl_command = f"curl -X {request.method} {headers} '{str(request.url)}' --data '{body.decode()}'"
 
     with open(log_filename, "a") as log_file:
         log_file.write(log_entry)
+        log_file.write(curl_command + "\n\n")
 
     response = await call_next(request)
     return response    
