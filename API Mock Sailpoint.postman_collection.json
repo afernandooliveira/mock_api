@@ -1,0 +1,279 @@
+{
+	"info": {
+		"_postman_id": "5bc1f08f-87c3-4b12-ad93-8729d6dc4a48",
+		"name": "API Mock Sailpoint",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4362183"
+	},
+	"item": [
+		{
+			"name": "Retorna usuário pelo username",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/v2024/query?username=admin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"v2024",
+						"query"
+					],
+					"query": [
+						{
+							"key": "username",
+							"value": "admin"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Retorna todos usuários cadastrados",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/v2024/query",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"v2024",
+						"query"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get JWT Token",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "2373187dsa8aD",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "3y1u2-jh1293812-132i12y",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/oauth/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Inserir usuário",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiIyMzczMTg3ZHNhOGFEIiwiZXhwIjoxNzM2ODA4OTY5fQ.8zfX6t_zf9CmbB3Oqg_1mEcn8TdKv6TcH38ZXKa3MY8",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Jane Smith\",\r\n    \"email\": \"jsmith@mailinator.com\",\r\n    \"username\": \"jane.smith\",\r\n    \"password\": \"Adm@123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/v2024/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"v2024",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "set-password",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiIyMzczMTg3ZHNhOGFEIiwiZXhwIjoxNzM2ODEyNzk4fQ.pOMYAGEL90ILiL_17_u9iUuvbrq-xvrJUCAUrfWW2gI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"identityId\": \"b89908aa-aff6-446e-b920-c1eed603839d\",\r\n    \"encryptedPassword\": \"Qriar#456\",\r\n    \"publicKeyId\": \"YWQ2NjQ4MTItZjY0NC00MWExLWFjMjktOGNmMzU3Y2VlNjk2\",\r\n    \"accountId\": \"CN=jason.stanton,OU=Brazil,OU=Sailpoint Mock,DC=qriar,DC=com\",\r\n    \"sourceId\": \"5e2db111-bc7c-42c3-97a1-050be5927ca5\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/v2024/set-password",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"v2024",
+						"set-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "query-password-info",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfaWQiOiIyMzczMTg3ZHNhOGFEIiwiZXhwIjoxNzM2ODg1MDA5fQ.yAQbdljY-Oj6N39ejaEgCHqLMUwGTi5vSHHCQ1G3CfU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userName\": \"jane.smith\",\r\n    \"sourceName\": \"Qriar.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/v2024/query-password-info",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"v2024",
+						"query-password-info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletar usuário",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/v2024/users/70e86189-e1b9-4834-802d-52d804295a84",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"v2024",
+						"users",
+						"70e86189-e1b9-4834-802d-52d804295a84"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
